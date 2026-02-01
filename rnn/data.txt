@@ -1,1 +1,7 @@
 hello
+hi
+hey
+hola
+hello hi hey
+hello rnn
+hi rnn
