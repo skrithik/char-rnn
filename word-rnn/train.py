@@ -13,6 +13,7 @@ def main():
     device = torch.device(
         "cuda" if torch.cuda.is_available() and config.DEVICE == "cuda" else "cpu"
     )
+    print("Using device:", device)
 
     # load data
     text = load_text(config.DATA_PATH)
@@ -21,6 +22,7 @@ def main():
 
     vocab_size = len(vocab)
     print(f"Vocab size: {vocab_size}")
+    print(f"Total words: {len(encoded)}")
 
     # model
     model = WordRNN(
@@ -38,18 +40,20 @@ def main():
 
     for epoch in range(config.EPOCHS):
         total_loss = 0.0
+        step_count = 0
         h = None  # initial hidden state
 
-        for x, y in get_batches(encoded, config.SEQ_LEN, vocab_size):
+        print(f"\nEpoch {epoch+1}/{config.EPOCHS} started")
+
+        for i, (x, y) in enumerate(get_batches(encoded, config.SEQ_LEN, vocab_size)):
             x = x.to(device)          # (seq_len, vocab_size)
             y = y.to(device)          # (seq_len)
 
             optimizer.zero_grad()
 
             logits, h = model(x, h)
-            # logits: (seq_len, 1, vocab_size)
 
-            # detach hidden state
+            # VERY IMPORTANT: detach hidden state
             h = h.detach()
 
             # reshape for loss
@@ -60,9 +64,14 @@ def main():
             optimizer.step()
 
             total_loss += loss.item()
+            step_count += 1
 
-        avg_loss = total_loss / (len(encoded) - config.SEQ_LEN)
-        print(f"Epoch [{epoch+1}/{config.EPOCHS}] | Loss: {avg_loss:.4f}")
+            # progress print (so it never looks frozen)
+            if i % 2000 == 0:
+                print(f"  Step {i} | Loss: {loss.item():.4f}")
+
+        avg_loss = total_loss / step_count
+        print(f"Epoch [{epoch+1}/{config.EPOCHS}] completed | Avg Loss: {avg_loss:.4f}")
 
 
 if __name__ == "__main__":
