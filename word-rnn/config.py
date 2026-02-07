@@ -4,14 +4,14 @@
 DATA_PATH = "data.txt"
 
 # ========= model =========
-HIDDEN_SIZE = 256
+HIDDEN_SIZE = 64
 NUM_LAYERS = 1
 
 # ========= training =========
 BATCH_SIZE = 1        # we are not batching yet
-SEQ_LEN = 20
+SEQ_LEN = 10
 LR = 0.003
-EPOCHS = 20
+EPOCHS = 10
 
 # ========= sampling =========
 TEMPERATURE = 0.8
